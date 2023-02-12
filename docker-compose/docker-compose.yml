@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:${MYSQL_VERSION}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - ${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}
+    volumes:
+      - dbdata:/var/lib/mysql
+  
+  backend:
+    depends_on:
+      - db
+    build: ./backend
+    ports:
+      - ${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: db
+      MYSQL_PORT: ${MYSQL_CONTAINER_PORT}
+      
+  frontend:
+    depends_on:
+      - backend
+    build: ./frontend
+    ports:
+      - ${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}
+    environment:
+      BACKEND_BASE_URL: ${BACKEND_BASE_URL}
+      
+volumes:
+  dbdata:
+
