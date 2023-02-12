@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0.32
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - ${MYSQL_HOST_PORT}:3306
+    volumes:
+      - dbdata:/var/lib/mysql
+  
+  backend:
+    depends_on:
+      - db
+    build: ../k8s-designer-backend
+    ports:
+      - ${BACKEND_HOST_PORT}:3000
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+    volumes:
+      - ../k8s-designer-backend:/app
+      
+  frontend:
+    depends_on:
+      - backend
+    build: ../k8s-designer-frontend 
+    ports:
+      - ${FRONTEND_HOST_PORT}:3000
+    environment:
+      BACKEND_BASE_URL: ${BACKEND_BASE_URL}
+    volumes:
+      - ../k8s-designer-frontend:/app
+
+volumes:
+  dbdata:
+
